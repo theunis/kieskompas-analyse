@@ -36,24 +36,16 @@ kk_mat <- kieskompas_table %>%
   column_to_rownames('statement_text') %>% 
   select(-theme.name)
 
-# PCA
-# kk_pca <- psych::principal(kk_mat)
-# 
-# kk_pca_scores <- kk_pca$scores %>% as.data.frame
-# kk_pca_scores[order(kk_pca_scores$RC1),]
-# 
-# kk_pca_scores[order(-kk_pca_scores$RC1),] %>% d3heatmap(Rowv = FALSE, Colv = FALSE)
-# kk_pca_scores[order(-kk_pca_scores$RC4),] %>% d3heatmap(Rowv = FALSE, Colv = FALSE)
-# kk_pca_scores[order(-kk_pca_scores$RC3),] %>% d3heatmap(Rowv = FALSE, Colv = FALSE)
-# kk_pca_scores[order(-kk_pca_scores$RC2),] %>% d3heatmap(Rowv = FALSE, Colv = FALSE)
-# 
-# # Correlation heatmap
-# cor(kk_mat) %>% d3heatmap()
+# Correlation heatmap
+cor(kk_mat) %>% d3heatmap()
 d3heatmap(kk_mat)
-# 
-# # MDS
-# library(ggrepel)
-# cmdscale(dist(kk_mat),2) %>% 
-#   as.data.frame %>% 
-#   rownames_to_column('partij') %>% 
-#   ggplot(aes(x=V1, y=V2)) + geom_point() + geom_text_repel(aes(label = partij),size = 3) + theme_minimal()
+
+# MDS
+library(ggrepel)
+cmdscale(dist(kk_mat),2) %>%
+  as.data.frame %>%
+  rownames_to_column('partij') %>%
+  ggplot(aes(x=V1, y=V2)) + 
+    geom_point() + 
+    geom_text_repel(aes(label = partij),size = 3) + 
+    theme_minimal()
