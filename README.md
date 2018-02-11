@@ -2,7 +2,7 @@
 
 Enkele analyses uitgevoerd op de stellingen van Kieskompas voor de Tweede Kamer verkiezingen van 2017.
 
-In de eerste analyse bekijkt de stellingen zelf, voornamelijk heatmaps worden gebruikt om een vergelijking te kunnen maken tussen de partijen en de stellingen. Tevens kijk ik naar correlaties en afstanden om dit in beeld te brengen:
+In de eerste analyse bekijk ik de stellingen zelf, waarbij ik voornamelijk heatmaps gebruik om een vergelijking te kunnen maken tussen de partijen en de stellingen. Tevens kijk ik naar correlaties en afstanden om dit in beeld te brengen:
 
 [Kieskompas stellingen](https://github.com/theunis/kieskompas-analyse/blob/master/Kieskompas.md)
 
