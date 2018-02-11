@@ -1,32 +1,30 @@
----
-title: "Kieskompas stellingen"
-output: github_document
----
-
-```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r setup}
-library(dplyr)
-library(tidyr)
-library(tibble)
-library(ggplot2)
-library(tidyjson)
-library(ca)
-library(d3heatmap)
-```
+Kieskompas stellingen
+================
 
 ## Laad de data
-```{r load}
+
+``` r
 stellingen_json <- readLines('data/kieskompas_stellingen.json')
+```
+
+    ## Warning in readLines("data/kieskompas_stellingen.json"): incomplete final
+    ## line found on 'data/kieskompas_stellingen.json'
+
+``` r
 answers_json    <- readLines('data/kieskompas_answers.json')
+```
+
+    ## Warning in readLines("data/kieskompas_answers.json"): incomplete final line
+    ## found on 'data/kieskompas_answers.json'
+
+``` r
 stellingen_df <- jsonlite::fromJSON(stellingen_json, flatten = TRUE)
 answers_df    <- jsonlite::fromJSON(answers_json, flatten = TRUE) 
 ```
 
 ## Pre-process data
-```{r}
+
+``` r
 answers_df <- answers_df %>% 
   group_by(id, name, short_name, logo, chart_color) %>% 
   do(.$answers[[1]]) %>% 
@@ -44,7 +42,7 @@ kieskompas_df <- answers_df %>%
 
 Verdeling van antwoorden over de partijen:
 
-```{r}
+``` r
 kieskompas_df %>% 
   count(name, answer.text_content) %>% 
   spread(answer.text_content, n, fill = 0) %>% 
@@ -62,8 +60,11 @@ kieskompas_df %>%
     xlab('') + ylab('')
 ```
 
+![](Kieskompas_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 Maak tabellen voor analyse van de stellingen
-```{r}
+
+``` r
 # table
 kieskompas_table <- kieskompas_df %>%
   select(name, theme.name, statement_text, answer.value) %>% 
@@ -78,7 +79,8 @@ kk_mat <- kieskompas_table %>%
 ```
 
 Correlatie heatmap:
-```{r}
+
+``` r
 cor(kk_mat) %>%
   as.data.frame() %>% 
   rownames_to_column('party_1') %>% 
@@ -92,8 +94,11 @@ cor(kk_mat) %>%
     xlab('') + ylab('')
 ```
 
+![](Kieskompas_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
 Algemene heatmap:
-```{r fig.width=10}
+
+``` r
 kk_mat %>%
   as.data.frame() %>% 
   rownames_to_column('stelling') %>% 
@@ -107,8 +112,11 @@ kk_mat %>%
     xlab('') + ylab('')
 ```
 
+![](Kieskompas_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 Multi-dimensional scaling
-```{r fig.height=10, fig.width=12}
+
+``` r
 # MDS
 library(ggrepel)
 cmdscale(dist(kk_mat),2) %>%
@@ -121,3 +129,5 @@ cmdscale(dist(kk_mat),2) %>%
     theme_minimal() +
     xlab('') + ylab('')
 ```
+
+![](Kieskompas_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
