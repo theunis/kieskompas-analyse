@@ -1,0 +1,90 @@
+---
+title: "Kieskompas stellingen"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(tidyjson)
+library(ca)
+library(d3heatmap)
+```
+
+## Laad de data
+```{r load}
+stellingen_json <- readLines('data/kieskompas_stellingen.json')
+answers_json    <- readLines('data/kieskompas_answers.json')
+stellingen_df <- jsonlite::fromJSON(stellingen_json, flatten = TRUE)
+answers_df    <- jsonlite::fromJSON(answers_json, flatten = TRUE) 
+```
+
+## Pre-process data
+```{r}
+answers_df <- answers_df %>% 
+  group_by(id, name, short_name, logo, chart_color) %>% 
+  do(.$answers[[1]]) %>% 
+  ungroup %>% 
+  select(-answer.is_skip)
+
+kieskompas_df <- answers_df %>%
+  left_join(stellingen_df %>% 
+              select(id, statement_name = name, statement_text = statement, 
+                     axis, inverse, theme.name, theme.identifier),
+            by = c('statement' = 'id'))
+```
+
+## Analyse
+
+Verdeling van antwoorden over de partijen:
+
+```{r}
+kieskompas_df %>% 
+  count(name, answer.text_content) %>% 
+  spread(answer.text_content, n, fill = 0) %>% 
+  remove_rownames() %>% 
+  column_to_rownames('name') %>% 
+  select(`Geen mening`, `Helemaal niet mee eens`, `Niet mee eens`, `Neutraal`, `Mee eens`, `Helemaal mee eens`) %>% 
+  d3heatmap(Colv = FALSE)
+```
+
+Maak tabellen voor analyse van de stellingen
+```{r}
+# table
+kieskompas_table <- kieskompas_df %>%
+  select(name, theme.name, statement_text, answer.value) %>% 
+  mutate(answer.value = if_else(answer.value == 99, as.integer(0), answer.value)) %>% 
+  spread(name, answer.value)
+
+kk_mat <- kieskompas_table %>% 
+  remove_rownames() %>% 
+  as.data.frame() %>% 
+  column_to_rownames('statement_text') %>% 
+  select(-theme.name)
+```
+
+Correlatie heatmap:
+```{r}
+cor(kk_mat) %>% d3heatmap()
+```
+
+Algemene heatmap:
+```{r}
+d3heatmap(kk_mat)
+```
+
+Multi-dimensional scaling
+```{r}
+# MDS
+library(ggrepel)
+cmdscale(dist(kk_mat),2) %>%
+  as.data.frame %>%
+  rownames_to_column('partij') %>%
+  ggplot(aes(x=V1, y=V2)) + 
+    geom_point() + 
+    geom_text_repel(aes(label = partij),size = 3) + 
+    theme_minimal()
+```
